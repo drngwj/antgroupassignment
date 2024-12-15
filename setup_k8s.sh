@@ -1,40 +1,76 @@
 #!/bin/bash
 
-# 检查 Kubernetes 集群状态
-echo "检查 Kubernetes 集群状态..."
-kubectl cluster-info > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "无法连接到 Kubernetes 集群，尝试修复配置..."
+set -e
 
-  # 启动 Minikube 集群（如果使用 Minikube）
-  if command -v minikube &> /dev/null; then
-    echo "启动 Minikube 集群..."
-    minikube start
-    minikube update-context
-  elif command -v kind &> /dev/null; then
-    echo "启动 Kind 集群..."
-    kind create cluster
-  else
-    echo "没有找到 Minikube 或 Kind，请检查 Kubernetes 集群是否已启动。"
-    exit 1
-  fi
-fi
+# Step 1: Start Minikube
+echo "Starting Minikube..."
+minikube start --nodes=2 --cpus=4 --memory=4g
 
-# 验证集群连接
-kubectl cluster-info > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "仍然无法连接到集群，请手动检查 kubeconfig 配置。"
-  exit 1
-else
-  echo "成功连接到 Kubernetes 集群！"
-fi
+# Step 2: Configure kubectl
+echo "Configuring kubectl context..."
+kubectl config use-context minikube
 
-# 尝试更新应用镜像
-echo "更新应用镜像..."
-kubectl set image deployment/app app=ngweijiang/app:efd9b303b9321395f55e39428835f0a3744353f9
-if [ $? -eq 0 ]; then
-  echo "镜像更新成功！"
-else
-  echo "镜像更新失败，请检查错误日志。"
-  exit 1
-fi
+# Verify Cluster Connection
+echo "Verifying Kubernetes cluster..."
+kubectl cluster-info
+
+# Step 3: Create Deployment YAML (inline for simplicity)
+echo "Creating Deployment YAML..."
+cat <<EOF > deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: ngweijiang/app:efd9b303b9321395f55e39428835f0a3744353f9
+        ports:
+        - containerPort: 80
+EOF
+
+# Step 4: Apply Deployment
+echo "Deploying application..."
+kubectl apply -f deployment.yaml
+
+# Step 5: Expose the Deployment
+echo "Exposing the deployment..."
+kubectl expose deployment app --type=NodePort --port=80
+
+# Step 6: Verify Deployment and Service
+echo "Verifying deployment and service..."
+kubectl get deployments
+kubectl get services
+
+# Step 7: Fetch Application URL
+echo "Fetching application URL..."
+APP_URL=$(minikube service app --url)
+echo "Application is accessible at: $APP_URL"
+
+# Step 8: Rolling Update
+echo "Performing rolling update..."
+kubectl set image deployment/app app=ngweijiang/app:latest --record
+kubectl rollout status deployment/app
+
+# Step 9: Rollback (Optional)
+# Uncomment the following lines if you want to demonstrate rollback
+# echo "Performing rollback..."
+# kubectl rollout undo deployment/app
+
+# Step 10: Cleanup Resources (Optional)
+# Uncomment the following lines to clean up resources
+# echo "Cleaning up resources..."
+# kubectl delete deployment app
+# kubectl delete service app
+# minikube delete
+
+echo "All steps completed successfully!"
