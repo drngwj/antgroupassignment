@@ -36,9 +36,9 @@ jobs:
 
       - name: Setup kubeconfig
         run: |
-         mkdir -p ~/.kube  # 创建目录
-         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config  # 写入配置
-         kubectl config set-context --current --namespace=${{ secrets.K8S_NAMESPACE }}
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+          kubectl config use-context my-context
 
       - name: Verify Kubernetes cluster connection
         run: kubectl cluster-info
