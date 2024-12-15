@@ -36,14 +36,9 @@ jobs:
 
       - name: Setup kubeconfig
         run: |
-    mkdir -p ~/.kube  # 创建目录
-    echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config  # 写入配置
-    kubectl config set-context --current --namespace=${{ secrets.K8S_NAMESPACE }}
-
-    - name: Debug kubeconfig
-      run: |
-    ls -l ~/.kube
-    cat ~/.kube/config
+         mkdir -p ~/.kube  # 创建目录
+         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config  # 写入配置
+         kubectl config set-context --current --namespace=${{ secrets.K8S_NAMESPACE }}
 
       - name: Verify Kubernetes cluster connection
         run: kubectl cluster-info
