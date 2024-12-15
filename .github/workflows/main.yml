@@ -26,7 +26,7 @@ jobs:
           docker push ngweijiang/app:${{ github.sha }}
           docker push ngweijiang/app:latest
 
-  deploy:
+    deploy:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     needs: push_to_registry
@@ -38,7 +38,9 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-          kubectl config use-context my-context
+          kubectl config get-contexts
+          # Replace <actual-context-name> with the correct context
+          kubectl config use-context <actual-context-name>
 
       - name: Verify Kubernetes cluster connection
         run: kubectl cluster-info
