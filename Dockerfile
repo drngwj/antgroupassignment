@@ -1,21 +1,23 @@
-# Base image
+# 使用 Python 3.9-slim 作为基础镜像
 FROM python:3.9-slim
 
-# Set working directory
+# 更新系统并安装必需的依赖库
+RUN apt-get update && apt-get install -y libpq-dev gcc
+
+# 升级 pip
+RUN pip install --upgrade pip
+
+# 设置工作目录
 WORKDIR /app
 
-# Copy application files
+# 复制应用代码到容器中
 COPY . /app
 
-# Install dependencies
-RUN pip install flask psycopg2
+# 安装 Python 依赖
+RUN pip install --no-cache-dir flask psycopg2-binary
 
-# Non-root user
-RUN useradd -m appuser
-USER appuser
-
-# Expose port
+# 暴露应用的端口
 EXPOSE 5000
 
-# Entry point
-CMD ["python", "app_v1.py"]
+# 启动应用
+CMD ["python", "app.py"]
