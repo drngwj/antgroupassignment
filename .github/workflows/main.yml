@@ -38,10 +38,12 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
-          export KUBECONFIG=~/.kube/config
           echo "Debugging kubeconfig:"
           cat ~/.kube/config
-          kubectl config view
+
+      - name: List available contexts
+        run: |
+          kubectl config get-contexts
 
       - name: Dynamically set context
         run: |
