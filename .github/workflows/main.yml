@@ -37,10 +37,9 @@ jobs:
        - name: Setup kubeconfig
          run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-          echo "Available contexts:"
+          mkdir -p ~/.kube
+          printf "%s" "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
           kubectl config get-contexts
-          kubectl config use-context <actual-context-name> # Replace with the correct context name
 
        - name: Verify Kubernetes cluster connection
          run: kubectl cluster-info
