@@ -15,9 +15,9 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t your-dockerhub-user/app:${{ github.sha }} .
-        docker login -u your-dockerhub-user -p ${{ secrets.DOCKER_PASSWORD }}
-        docker push your-dockerhub-user/app:${{ github.sha }}
+        docker build -t ngweijiang/app:${{ github.sha }} .
+        docker login -u ngweijiang -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push ngweijiang/app:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
