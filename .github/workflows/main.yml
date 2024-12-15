@@ -39,9 +39,17 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
           export KUBECONFIG=~/.kube/config
-          echo "Available contexts:"
-          kubectl config get-contexts
-          kubectl config use-context my-context
+
+      - name: Dynamically set default context
+        run: |
+          export KUBECONFIG=~/.kube/config
+          CONTEXT_NAME=$(kubectl config get-contexts -o name | head -n 1)
+          if [ -z "$CONTEXT_NAME" ]; then
+            echo "No contexts found in kubeconfig."
+            exit 1
+          fi
+          echo "Using context: $CONTEXT_NAME"
+          kubectl config use-context "$CONTEXT_NAME"
 
       - name: Verify Kubernetes cluster connection
         run: kubectl cluster-info
