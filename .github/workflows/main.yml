@@ -37,9 +37,9 @@ jobs:
        - name: Setup kubeconfig
          run: |
           mkdir -p ~/.kube
-          mkdir -p ~/.kube
-          printf "%s" "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-          kubectl config get-contexts
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+          kubectl config view
 
        - name: Verify Kubernetes cluster connection
          run: kubectl cluster-info
