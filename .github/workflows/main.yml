@@ -45,6 +45,10 @@ jobs:
         run: |
           kubectl config get-contexts || echo "No contexts found in kubeconfig"
 
+      - name: Verify Kubeconfig Information
+        run: |
+          kubectl config view
+
       - name: Dynamically set context
         run: |
           CONTEXT_NAME=$(kubectl config get-contexts -o name | head -n 1)
@@ -55,8 +59,8 @@ jobs:
           echo "Using context: $CONTEXT_NAME"
           kubectl config use-context "$CONTEXT_NAME"
           
-      - name: View Kubernetes configuration
-        run: kubectl config view
+      - name: Check kubectl version
+        run: kubectl version --client
 
       - name: Verify Kubernetes cluster connection
         run: kubectl cluster-info
