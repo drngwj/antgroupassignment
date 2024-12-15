@@ -39,20 +39,15 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
           export KUBECONFIG=~/.kube/config
-
-      - name: Debug kubeconfig
-        run: |
-          echo "Kubeconfig content:"
+          echo "Debugging kubeconfig:"
           cat ~/.kube/config
-          echo "Available contexts:"
-          kubectl config get-contexts || echo "No contexts found in kubeconfig."
-          kubectl config current-context || echo "No current context set."
+          kubectl config view
 
       - name: Dynamically set context
         run: |
           CONTEXT_NAME=$(kubectl config get-contexts -o name | head -n 1)
           if [ -z "$CONTEXT_NAME" ]; then
-            echo "No contexts found. Please check your kubeconfig."
+            echo "Error: No contexts found in kubeconfig. Please check your KUBECONFIG_DATA."
             exit 1
           fi
           echo "Using context: $CONTEXT_NAME"
