@@ -32,7 +32,7 @@ jobs:
     needs: push_to_registry  # Correctly reference the 'push_to_registry' job
     steps:
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v1
+        uses: kind/setup-kubectl@v1
 
       - name: Deploy to Kubernetes
         run: |
