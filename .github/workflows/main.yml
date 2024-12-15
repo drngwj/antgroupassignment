@@ -40,12 +40,19 @@ jobs:
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
           export KUBECONFIG=~/.kube/config
 
-      - name: Dynamically set default context
+      - name: Debug kubeconfig
         run: |
-          export KUBECONFIG=~/.kube/config
+          echo "Kubeconfig content:"
+          cat ~/.kube/config
+          echo "Available contexts:"
+          kubectl config get-contexts || echo "No contexts found in kubeconfig."
+          kubectl config current-context || echo "No current context set."
+
+      - name: Dynamically set context
+        run: |
           CONTEXT_NAME=$(kubectl config get-contexts -o name | head -n 1)
           if [ -z "$CONTEXT_NAME" ]; then
-            echo "No contexts found in kubeconfig."
+            echo "No contexts found. Please check your kubeconfig."
             exit 1
           fi
           echo "Using context: $CONTEXT_NAME"
