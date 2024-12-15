@@ -26,25 +26,25 @@ jobs:
           docker push ngweijiang/app:${{ github.sha }}
           docker push ngweijiang/app:latest
 
-    deploy:
-    name: Deploy to Kubernetes
-    runs-on: ubuntu-latest
-    needs: push_to_registry
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+  deploy:
+      name: Deploy to Kubernetes
+      runs-on: ubuntu-latest
+      needs: push_to_registry
+      steps:
+       - name: Checkout Code
+         uses: actions/checkout@v2
 
-      - name: Setup kubeconfig
-        run: |
+       - name: Setup kubeconfig
+         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+          echo "Available contexts:"
           kubectl config get-contexts
-          # Replace <actual-context-name> with the correct context
-          kubectl config use-context <actual-context-name>
+          kubectl config use-context <actual-context-name> # Replace with the correct context name
 
-      - name: Verify Kubernetes cluster connection
-        run: kubectl cluster-info
+       - name: Verify Kubernetes cluster connection
+         run: kubectl cluster-info
 
-      - name: Deploy to Kubernetes
-        run: |
+       - name: Deploy to Kubernetes
+         run: |
           kubectl set image deployment/app app=ngweijiang/app:${{ github.sha }}
